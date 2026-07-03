@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Saffron Moon Library, a fictional Persian poetry and music archive.">
+  <title>Saffron Moon Library</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --parchment: #f3eee2;
+      --ink: #1b1b2e;
+      --turquoise: #2e7d6b;
+      --saffron: #c98a2e;
+      --line: rgba(27, 27, 46, .18);
+      font-family: "Times New Roman", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--parchment);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .24;
+      background:
+        linear-gradient(90deg, transparent 0 96%, rgba(201,138,46,.18) 96% 100%) 0 0 / 72px 72px,
+        radial-gradient(circle at 30% 20%, rgba(46,125,107,.08), transparent 36%),
+        radial-gradient(circle at 70% 72%, rgba(201,138,46,.12), transparent 32%);
+      mix-blend-mode: multiply;
+      z-index: 40;
+    }
+
+    a, button { color: inherit; }
+    button {
+      font: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .nav {
+      position: fixed;
+      z-index: 30;
+      inset-inline: 0;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px clamp(18px, 4vw, 56px);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      background: linear-gradient(to bottom, rgba(243,238,226,.92), transparent);
+    }
+
+    .nav__links {
+      display: flex;
+      gap: clamp(14px, 2.5vw, 32px);
+    }
+
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 100px clamp(18px, 6vw, 86px) 48px;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .arabesque {
+      position: absolute;
+      inset: -12%;
+      z-index: -1;
+      opacity: .46;
+      animation: drift 28s linear infinite;
+    }
+
+    .arabesque svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes drift {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(4deg) scale(1.04); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    .hero__text {
+      width: min(1120px, 100%);
+      display: grid;
+      gap: 18px;
+    }
+
+    .farsi {
+      direction: rtl;
+      font-family: "Noto Nastaliq Urdu", "Geeza Pro", "Times New Roman", serif;
+      line-height: 1.95;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(44px, 9vw, 126px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h1 .farsi {
+      display: block;
+      color: var(--ink);
+      font-size: 1.02em;
+    }
+
+    h1 .latin {
+      display: block;
+      max-width: 940px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      color: var(--turquoise);
+    }
+
+    .hero__note {
+      max-width: 590px;
+      margin: 0;
+      font: 16px/1.6 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .section {
+      padding: clamp(64px, 10vw, 140px) clamp(18px, 5vw, 74px);
+      border-top: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--saffron);
+      font: 12px/1.2 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .section h2 {
+      margin: 0 0 34px;
+      font-size: clamp(42px, 7vw, 106px);
+      line-height: .95;
+      letter-spacing: 0;
+    }
+
+    .poetry-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(160px, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+
+    .poem-card {
+      min-height: 270px;
+      padding: 22px;
+      background: var(--parchment);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: start;
+      transition: background 180ms ease, color 180ms ease;
+    }
+
+    .poem-card:hover {
+      background: var(--ink);
+      color: var(--parchment);
+    }
+
+    .poem-card strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+
+    .poem-card span {
+      color: var(--saffron);
+      font: 13px/1.4 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .manuscript {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      place-items: center;
+      padding: clamp(18px, 4vw, 56px);
+      background: rgba(27, 27, 46, .72);
+    }
+
+    .manuscript.is-open { display: grid; }
+
+    .manuscript__page {
+      width: min(940px, 100%);
+      max-height: 88svh;
+      overflow: auto;
+      padding: clamp(28px, 5vw, 72px);
+      background: var(--parchment);
+      border: 14px double var(--saffron);
+      box-shadow: 0 30px 90px rgba(0,0,0,.32);
+      position: relative;
+    }
+
+    .manuscript__close {
+      position: sticky;
+      top: 0;
+      float: inline-end;
+      padding: 10px 14px;
+      background: var(--ink);
+      color: var(--parchment);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .verse-fa {
+      font-size: clamp(32px, 5vw, 68px);
+      color: var(--ink);
+      margin: 22px 0;
+    }
+
+    .verse-en {
+      max-width: 680px;
+      font-size: clamp(19px, 2vw, 27px);
+      line-height: 1.55;
+      color: rgba(27,27,46,.78);
+    }
+
+    .musicians {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(190px, 1fr));
+      gap: 14px;
+    }
+
+    .music-card {
+      border: 1px solid var(--line);
+      padding: 20px;
+      min-height: 330px;
+      background: rgba(255,255,255,.18);
+      display: grid;
+      align-content: space-between;
+      transition: transform 220ms ease, background 220ms ease;
+    }
+
+    .music-card[aria-expanded="true"],
+    .music-card:hover {
+      transform: translateY(-6px);
+      background: rgba(46,125,107,.12);
+    }
+
+    .music-card h3 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .music-card p {
+      font: 15px/1.55 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .wave {
+      width: 100%;
+      height: 72px;
+    }
+
+    .type-showcase {
+      min-height: 100svh;
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      align-items: center;
+      gap: clamp(28px, 6vw, 90px);
+      background: var(--ink);
+      color: var(--parchment);
+    }
+
+    .letters {
+      direction: rtl;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .letters span {
+      display: grid;
+      place-items: center;
+      width: clamp(78px, 11vw, 160px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(243,238,226,.22);
+      font-size: clamp(54px, 10vw, 142px);
+      transform: translateY(24px);
+      opacity: .2;
+      transition: transform 800ms cubic-bezier(.16,1,.3,1), opacity 800ms ease, color 800ms ease;
+    }
+
+    .letters.is-visible span {
+      transform: translateY(0);
+      opacity: 1;
+      color: var(--saffron);
+    }
+
+    .letters span:nth-child(2) { transition-delay: 90ms; }
+    .letters span:nth-child(3) { transition-delay: 180ms; }
+    .letters span:nth-child(4) { transition-delay: 270ms; }
+    .letters span:nth-child(5) { transition-delay: 360ms; }
+
+    .shelves {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+
+    .shelf {
+      min-height: 240px;
+      padding: 24px;
+      background: var(--parchment);
+    }
+
+    .shelf h3 {
+      margin: 0 0 42px;
+      font-size: 30px;
+    }
+
+    .footer {
+      padding: 28px clamp(18px, 5vw, 74px);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-top: 1px solid var(--line);
+      font: 13px/1.4 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    @media (max-width: 900px) {
+      .poetry-grid, .musicians, .shelves { grid-template-columns: 1fr 1fr; }
+      .type-showcase { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 580px) {
+      .nav { align-items: flex-start; }
+      .nav__links { flex-wrap: wrap; justify-content: flex-end; }
+      .poetry-grid, .musicians, .shelves { grid-template-columns: 1fr; }
+      .poem-card, .music-card, .shelf { min-height: 220px; }
+      .footer { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a href="#top">Saffron Moon Library</a>
+    <nav class="nav__links" aria-label="Primary navigation">
+      <a href="#poetry">Poetry</a>
+      <a href="#music">Music</a>
+      <a href="#type">Letters</a>
+      <a href="#library">Library</a>
+    </nav>
+  </header>
+
+  <section id="top" class="hero">
+    <div class="arabesque" aria-hidden="true">
+      <svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <pattern id="motif" width="120" height="120" patternUnits="userSpaceOnUse">
+            <path d="M60 8 C88 34, 88 86, 60 112 C32 86, 32 34, 60 8Z" fill="none" stroke="#c98a2e" stroke-width="1.4"/>
+            <path d="M8 60 C34 32, 86 32, 112 60 C86 88, 34 88, 8 60Z" fill="none" stroke="#2e7d6b" stroke-width="1.2"/>
+            <circle cx="60" cy="60" r="9" fill="#c98a2e" opacity=".28"/>
+          </pattern>
+        </defs>
+        <rect width="1200" height="900" fill="url(#motif)"/>
+      </svg>
+    </div>
+    <div class="hero__text">
+      <h1>
+        <span class="farsi" lang="fa" dir="rtl">کتابخانه ماه زعفران</span>
+        <span class="latin">A living divan of poetry, music, and script.</span>
+      </h1>
+      <p class="hero__note">A fictional cultural archive that recomposes manuscript borders, Persian verse, instrument traditions, and modern editorial typography into a static website.</p>
+    </div>
+  </section>
+
+  <main>
+    <section id="poetry" class="section">
+      <p class="eyebrow">Poetry catalogue / فهرست شعر</p>
+      <h2><span class="farsi" lang="fa" dir="rtl">دیوان باز</span><br>Open the manuscript.</h2>
+      <div class="poetry-grid" id="poetryGrid"></div>
+    </section>
+
+    <section id="music" class="section">
+      <p class="eyebrow">Listening room / اتاق شنیدن</p>
+      <h2>Musicians as illuminated records.</h2>
+      <div class="musicians" id="musicians"></div>
+    </section>
+
+    <section id="type" class="section type-showcase">
+      <div>
+        <p class="eyebrow">Typography study / خوشنویسی</p>
+        <h2>Letters combine before they become memory.</h2>
+        <p>Scroll-triggered letterforms treat calligraphy as the subject, not ornament. The type here is system-rendered; replace it with licensed Persian webfonts for production.</p>
+      </div>
+      <div class="letters farsi" id="letters" lang="fa" dir="rtl" aria-label="Persian letter composition">
+        <span>م</span><span>ه</span><span>ر</span><span>ب</span><span>ا</span><span>ن</span>
+      </div>
+    </section>
+
+    <section id="library" class="section">
+      <p class="eyebrow">Personal library / کتابخانه شخصی</p>
+      <h2>Shelves for a fictional archive.</h2>
+      <div class="shelves">
+        <article class="shelf"><h3>Poetry</h3><p>Couplets, rubaiyat, ghazals, and marginal notes.</p></article>
+        <article class="shelf"><h3>Music</h3><p>Tar, santur, daf, voice, and modern studio fragments.</p></article>
+        <article class="shelf"><h3>Visual art</h3><p>Miniature fragments, gold rules, and rose geometry.</p></article>
+        <article class="shelf"><h3>Philosophy</h3><p>Questions of exile, memory, language, and home.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <aside class="manuscript" id="manuscript" aria-modal="true" role="dialog">
+    <article class="manuscript__page">
+      <button class="manuscript__close" id="closeManuscript" type="button">Close</button>
+      <p class="eyebrow" id="poemMeta"></p>
+      <h2 id="poemTitle"></h2>
+      <div class="verse-fa farsi" id="poemFa" lang="fa" dir="rtl"></div>
+      <p class="verse-en" id="poemEn"></p>
+    </article>
+  </aside>
+
+  <footer class="footer">
+    <span>Fictional archive; verify text attribution before publishing real-world editions.</span>
+    <a href="404.html">404 manuscript fragment</a>
+  </footer>
+
+  <script>
+    const poems = [
+      {
+        poet: "Hafez",
+        fa: "حافظ",
+        title: "Ghazal fragment",
+        year: "14th century",
+        verseFa: "الا يا ايها الساقي ادر كاسا و ناولها<br>كه عشق آسان نمود اول ولي افتاد مشكل‌ها",
+        verseEn: "O cupbearer, pass the cup around. Love looked easy at first, then difficulty appeared. Translation note: placeholder rendering; verify a public-domain source before publication."
+      },
+      {
+        poet: "Rumi",
+        fa: "مولانا",
+        title: "Masnavi fragment",
+        year: "13th century",
+        verseFa: "بشنو از ني چون حكايت مي‌كند<br>از جدايي‌ها شكايت مي‌كند",
+        verseEn: "Listen to the reed as it tells its story, complaining of separations. Translation note: placeholder rendering based on public-domain tradition."
+      },
+      {
+        poet: "Omar Khayyam",
+        fa: "خیام",
+        title: "Rubaiyat fragment",
+        year: "11th century",
+        verseFa: "برخيز و مخور غم جهان گذران<br>بنشين و دمي به شادماني گذران",
+        verseEn: "Rise, and do not grieve over the passing world; sit for a moment and let it pass in gladness. Translation note: verify source for production."
+      },
+      {
+        poet: "Ferdowsi",
+        fa: "فردوسی",
+        title: "Shahnameh fragment",
+        year: "10th century",
+        verseFa: "به نام خداوند جان و خرد<br>كزين برتر انديشه برنگذرد",
+        verseEn: "In the name of the Lord of soul and wisdom, beyond whom thought cannot pass. Translation note: placeholder rendering."
+      },
+      {
+        poet: "Saadi",
+        fa: "سعدی",
+        title: "Golestan fragment",
+        year: "13th century",
+        verseFa: "بني آدم اعضاي يكديگرند<br>كه در آفرينش ز يك گوهرند",
+        verseEn: "The children of Adam are limbs of one another, created from one essence. Translation note: public-domain attribution must be checked."
+      }
+    ];
+
+    const poetryGrid = document.querySelector("#poetryGrid");
+    poems.forEach((poem, index) => {
+      const button = document.createElement("button");
+      button.className = "poem-card";
+      button.type = "button";
+      button.innerHTML = `<span>${poem.year}</span><strong><span class="farsi" lang="fa" dir="rtl">${poem.fa}</span>${poem.poet}</strong><span>${poem.title}</span>`;
+      button.addEventListener("click", () => openPoem(index));
+      poetryGrid.appendChild(button);
+    });
+
+    const manuscript = document.querySelector("#manuscript");
+    function openPoem(index) {
+      const poem = poems[index];
+      poemMeta.textContent = `${poem.poet} / ${poem.year}`;
+      poemTitle.textContent = poem.title;
+      poemFa.innerHTML = poem.verseFa;
+      poemEn.textContent = poem.verseEn;
+      manuscript.classList.add("is-open");
+    }
+    closeManuscript.addEventListener("click", () => manuscript.classList.remove("is-open"));
+    manuscript.addEventListener("click", event => {
+      if (event.target === manuscript) manuscript.classList.remove("is-open");
+    });
+
+    const profiles = [
+      ["Mahoor Ensemble", "Tar, setar, and voice arranged as an intimate chamber session.", [8, 22, 44, 26, 58, 34, 18, 48]],
+      ["Daf North", "A percussion-led fictional group built around layered frame drums.", [42, 18, 56, 30, 62, 22, 50, 36]],
+      ["Santur Signal", "Contemporary hammered dulcimer textures meeting quiet electronics.", [18, 54, 24, 60, 34, 46, 22, 58]],
+      ["Cypress Radio", "A modern vocal project that treats archival modes as new material.", [50, 26, 40, 18, 62, 32, 48, 24]]
+    ];
+
+    const musicians = document.querySelector("#musicians");
+    profiles.forEach((profile, index) => {
+      const [name, bio, heights] = profile;
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "music-card";
+      card.setAttribute("aria-expanded", "false");
+      card.innerHTML = `<h3>${name}</h3><svg class="wave" viewBox="0 0 160 72" aria-hidden="true">${heights.map((h, i) => `<rect x="${i * 20 + 4}" y="${68 - h}" width="8" height="${h}" rx="4" fill="${index % 2 ? "#c98a2e" : "#2e7d6b"}"/>`).join("")}</svg><p>${bio}</p>`;
+      card.addEventListener("click", () => {
+        card.setAttribute("aria-expanded", card.getAttribute("aria-expanded") === "true" ? "false" : "true");
+      });
+      musicians.appendChild(card);
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add("is-visible");
+      });
+    }, { threshold: .45 });
+    observer.observe(document.querySelector("#letters"));
+  </script>
+</body>
+</html>
