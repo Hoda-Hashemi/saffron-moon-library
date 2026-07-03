@@ -1,10 +1,17 @@
 # Saffron Moon Library
 
-A fictional Persian cultural archive for poetry, music, manuscript ornament, and calligraphy. The site is static and bilingual, with RTL Persian text, manuscript-style poem views, musician cards, and an animated calligraphy section.
+A vivid Persian homepage shell. The site is intentionally homepage-only for now; catalogue pages will be added later.
 
-Poem snippets and translations are placeholders. Verify public-domain status and translator attribution before real-world publishing.
+Palette:
 
-## Local use
+- lapis
+- turquoise
+- pomegranate
+- saffron
+- rose
+- ivory
+
+## Local Use
 
 Open `index.html` directly in a browser, or serve the folder:
 
